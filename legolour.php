@@ -15,14 +15,11 @@ if(!empty($url)){
 		$path = "./write/temp.gif";
 }
 
-
 $img = imagecreatefromgif($path);
 $w = imagesx($img);
 $h = imagesy($img);
 
-
 // REMOVE WHITEBOX AROUND IMAGE
-
 $b_top = 0;
 $b_btm = 0;
 $b_lft = 0;
@@ -38,7 +35,6 @@ for(; $b_top < imagesy($img); ++$b_top) {
     }
   }
 }
-
 //bottom
 for(; $b_btm < imagesy($img); ++$b_btm) {
   for($x = 0; $x < imagesx($img); ++$x) {
@@ -47,7 +43,6 @@ for(; $b_btm < imagesy($img); ++$b_btm) {
     }
   }
 }
-
 //left
 for(; $b_lft < imagesx($img); ++$b_lft) {
   for($y = 0; $y < imagesy($img); ++$y) {
@@ -56,7 +51,6 @@ for(; $b_lft < imagesx($img); ++$b_lft) {
     }
   }
 }
-
 //right
 for(; $b_rt < imagesx($img); ++$b_rt) {
   for($y = 0; $y < imagesy($img); ++$y) {
@@ -65,26 +59,21 @@ for(; $b_rt < imagesx($img); ++$b_rt) {
     }
   }
 }
-
 //copy the contents, excluding the border
 $newimg = imagecreatetruecolor(
     imagesx($img)-($b_lft+$b_rt), imagesy($img)-($b_top+$b_btm));
 
 $w = $w-($b_lft+$b_rt);
 error_log( "b_lft=$b_lft   b_rt=$b_rt");
-
 $h = $h-($b_top+$b_btm);
 error_log("b_top= $b_top   b_btm=$b_btm");
 
 //$newimg = imagecreate($w,$h);
-
 imagecopy($newimg, $img, 0, 0, $b_lft, $b_top, imagesx($newimg), imagesy($newimg));
-
 
 //create new "blank" image
 //$newimg = imagecreatetruecolor($w, $h);
 $img = $newimg;
-
 
 //listed color
 //palette array for the 21226
@@ -126,9 +115,6 @@ $black = imagecolorallocate($newimg,5,19,29);
 
 $colourarray = array($yellow,$white,$tan,$reddishbrown,$red,$orange,$mediumnougat,$lime,$lightaqua,$darkblue,$darkazure,$brightpink,$brightlightyellow,$brightlightorange,$brightgreen,$black);
 
-
-
-
 $tt = imagecolorstotal($img);
 //echo "Image color total: $tt";
 
@@ -139,22 +125,14 @@ function absoluteColorDistance(array $color_a, array $color_b): int {
         abs($color_a[2] - $color_b["blue"]);
 }
 
-
-
 function getnearestpixel(array $imgarray, array $palette){
         //set the distance absurd hight
 	$distance = 99999;
 	//set iterator on 0
 	$i = 0;
 	$rightrgbarrayindex = null;
-//$c=count($palette);
-//echo "COUNT PALETTE = $c";
-//$vvv=var_dump($palette[$i]);
-//echo "PALETTE $i = $vvv";
-
 	do
-	{
-		
+	{		
 		//check if distance is lower than current distance
 		$absdist = absoluteColorDistance($palette[$i],$imgarray);
 //		echo "ABSDIST = $absdist";
@@ -166,41 +144,21 @@ function getnearestpixel(array $imgarray, array $palette){
 	}
 	while($i < count($palette));
 	return $rightrgbarrayindex;
-
 }
-
-
-
-//for($x = 0; $x < $w; $x++) {
-//    for($y = 0; $y < $h; $y++) {
 
 for($x = $b_lft; $x < $w; $x++) {
     for($y = $b_top; $y < $h; $y++) {
 
         // pixel color at (x, y)
         $rgb = imagecolorat($img, $x, $y);
-//	echo "pixel: $x,$y";
-//        echo "ORIG PIXEL";
-//	var_dump(imagecolorsforindex($img, $rgb));
 
 	//get nearestpixelarray
 	$nearestpixelarrayindex = getnearestpixel(imagecolorsforindex($img, $rgb),$palette);
-//	echo "NPA";
-//	var_dump($nearestpixelarray);
-//	echo "NPA [0],[1],[2] is $nearestpixelarray[0],$nearestpixelarray[1],$nearestpixelarray[2]";
-
-	//define the pixel for the image
-
-
-//	var_dump($pxl);
 
 	//set the pixel colour with our pallet in newimg
 	$color = $colourarray[$nearestpixelarrayindex];
 	imagesetpixel($newimg, $x, $y, $color);
 
-//	$color = imagecolorat($img, $x, $y);
- //       echo "color= $color";
-	//echo "rgb = $vd";
     }
 }
 
@@ -208,9 +166,6 @@ $scaledimg = imagecreate($w*$scale,$h*$scale);
 imagecopyresampled($scaledimg,$newimg,0,0,0,0,$w*$scale,$h*$scale,$w,$h);
 //imagegif($scaledimg,'./write/output.gif');
 
-
-
 header('Content-Type: image/gif');
 imagegif($scaledimg);
-
 ?>
